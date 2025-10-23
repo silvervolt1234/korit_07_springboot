@@ -1,4 +1,4 @@
-package com.example.cardatabase;
+package com.example.cardatabase.web;
 
 import com.example.cardatabase.domain.AccountCredentials;
 import com.example.cardatabase.service.JwtService;
@@ -10,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.logging.Handler;
 
 @RestController
 public class LoginController {

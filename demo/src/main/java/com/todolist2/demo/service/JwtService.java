@@ -14,8 +14,10 @@ import java.util.Date;
 public class JwtService {
     static final long EXPIRATION_TIME = 86400000;
     static final String PREFIX = "Bearer";
-    static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    
+//    static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    static final Key key = Keys.hmacShaKeyFor("your-32-byte-or-longer-secret-key!".getBytes());
+
+
     // 서명된 JWT 토큰 생성
     public String getToken(String username) {
         return Jwts.builder()
