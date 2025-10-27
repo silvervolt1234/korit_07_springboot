@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class LoginController {
@@ -28,9 +30,14 @@ public class LoginController {
         Authentication auth = authenticationManager.authenticate(creds);
         String jwts = jwtService.getToken(auth.getName());
 
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwts)
+//                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
+//                .build();
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwts)
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
-                .build();
+                .body(Map.of("token", jwts));
     }
 }

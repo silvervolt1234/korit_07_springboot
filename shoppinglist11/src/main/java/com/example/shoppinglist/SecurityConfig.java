@@ -1,13 +1,10 @@
-package com.todolist2.demo.config;
+package com.example.shoppinglist;
 
-import com.todolist2.demo.filter.AuthenticationFilter;
-import com.todolist2.demo.handler.AuthEntryPoint;
-import com.todolist2.demo.service.UserDetailsServiceImpl;
+import com.example.cardatabase.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -30,10 +29,10 @@ public class SecurityConfig {
     private final AuthenticationFilter authenticationFilter;
     private final AuthEntryPoint exceptionHandler;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthenticationFilter authenticationFilter, AuthEntryPoint authEntryPoint) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthenticationFilter authenticationFilter, AuthEntryPoint exceptionHandler, CorsConfigurationSource corsConfigurationSource) {
         this.userDetailsService = userDetailsService;
         this.authenticationFilter = authenticationFilter;
-        this.exceptionHandler = authEntryPoint;
+        this.exceptionHandler = exceptionHandler;
     }
 
     public void configGlobal (AuthenticationManagerBuilder auth) throws Exception {
@@ -46,36 +45,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        return authBuilder.build();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 개발 중 로그인 포함 모든 HTTP 메서드 요청 허용
+//        http.csrf(csrf -> csrf.disable())
+//                .cors(withDefaults()Requests ->)
+//                .authorizeHttpRequests(authorizeHttp
+//                        authorizeHttpRequests.anyRequest().permitAll());
+        // 로그인 엔드포인트 POST 요청 제외 나머지 인증 필요
         http.csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .anyRequest().authenticated())
+                .cors(withDefaults())
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorizeHttpRequests ->
+                        authorizeHttpRequests.requestMatchers(HttpMethod.POST, "/login").permitAll().anyRequest().authenticated())
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exc -> exc.authenticationEntryPoint(exceptionHandler));
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(exceptionHandler));
         return http.build();
     }
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.csrf(csrf -> csrf.disable())
-//                .cors(Customizer.withDefaults())
-//                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll()) // 모든 요청 허용
-//                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//                .exceptionHandling(exc -> exc.authenticationEntryPoint(exceptionHandler));
-//        return http.build();
-//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
