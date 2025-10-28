@@ -17,6 +17,6 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         // 401 응답하기 위해서 커스텀
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write("\"error\": \"Unatuhorized - Please Log In\"}");
+        response.getWriter().write("\"error\": \"Unauthorized - Please Log In\"}");
     }
 }

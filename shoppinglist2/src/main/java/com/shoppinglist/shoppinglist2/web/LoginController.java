@@ -32,7 +32,7 @@ public class LoginController {
 
         // JWT를 'Authorization' 헤더에 담아서 응답
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer", jwt)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization") // FE에서 헤더를 읽을 수 있게
                 .build();
     }
